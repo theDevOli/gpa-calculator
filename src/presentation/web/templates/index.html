@@ -1,0 +1,52 @@
+{% extends "base.html" %} {% block title %}GPA Calculator - Dashboard{% endblock
+%} {% block content %}
+<header class="mb-8 pb-4 border-b border-gray-200">
+    <h2 class="text-3xl font-bold text-slate-800 tracking-tight">
+        Visão Geral
+    </h2>
+    <p class="text-sm text-slate-500 mt-1">
+        Bem-vindo ao GPA Calculator. Selecione uma opção no menu lateral para
+        gerenciar o sistema.
+    </p>
+</header>
+
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div
+        class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex items-center justify-between">
+        <div>
+            <p
+                class="text-sm font-medium text-slate-500 uppercase tracking-wider">
+                Estudantes
+            </p>
+            <h3 class="text-3xl font-bold text-slate-800 mt-1">Gerenciar</h3>
+            <a
+                href="/students"
+                class="text-xs font-medium text-indigo-600 hover:text-indigo-700 mt-2 inline-flex items-center gap-1">
+                Acessar listagem &rarr;
+            </a>
+        </div>
+        <div class="p-4 bg-indigo-50 text-indigo-600 rounded-xl">
+            <i data-lucide="users" class="w-8 h-8"></i>
+        </div>
+    </div>
+
+    <div
+        class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex items-center justify-between">
+        <div>
+            <p
+                class="text-sm font-medium text-slate-500 uppercase tracking-wider">
+                Cursos / Disciplinas
+            </p>
+            <h3 class="text-3xl font-bold text-slate-800 mt-1">Gerenciar</h3>
+            <a
+                href="/courses"
+                class="text-xs font-medium text-indigo-600 hover:text-indigo-700 mt-2 inline-flex items-center gap-1">
+                Acessar disciplinas &rarr;
+            </a>
+        </div>
+        <div class="p-4 bg-emerald-50 text-emerald-600 rounded-xl">
+            <i data-lucide="book-open" class="w-8 h-8"></i>
+        </div>
+    </div>
+</div>
+{% endblock %}

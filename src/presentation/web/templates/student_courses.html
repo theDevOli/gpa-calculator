@@ -1,0 +1,274 @@
+{% extends "base.html" %} {% block title %}GPA Calculator - Cursos do Aluno{%
+endblock %} {% block extra_head %}
+<!-- Estilos específicos se necessário -->
+{% endblock %} {% block content %}
+<div class="mb-6">
+    <a
+        href="/students"
+        class="text-sm text-indigo-600 hover:text-indigo-700 font-medium inline-flex items-center gap-1 mb-4 transition">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+        Voltar para listagem
+    </a>
+
+    <div
+        class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+        <div class="flex items-center gap-4">
+            <div
+                class="w-14 h-14 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold text-xl uppercase shadow-md shadow-indigo-600/10">
+                {{ student.name[:2] }}
+            </div>
+            <div>
+                <h2 class="text-2xl font-bold text-slate-800 tracking-tight">
+                    {{ student.name }}
+                </h2>
+                <p class="text-sm font-mono text-slate-500 mt-0.5">
+                    CPF: {{ student.student_tax_id }}
+                </p>
+            </div>
+        </div>
+
+        <div
+            class="bg-slate-50 border border-slate-200 rounded-lg px-6 py-3 flex items-center gap-4 min-w-[160px]">
+            <div>
+                <p
+                    class="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    Média Brasileira (0-10)
+                </p>
+                <p class="text-2xl font-black text-slate-900 mt-0.5">
+                    {{ student.ira }}
+                </p>
+            </div>
+            <div class="p-2 bg-indigo-50 text-indigo-600 rounded-lg">
+                <i data-lucide="award" class="w-5 h-5"></i>
+            </div>
+        </div>
+        <div
+            class="bg-slate-50 border border-slate-200 rounded-lg px-6 py-3 flex items-center gap-4 min-w-[160px]">
+            <div>
+                <p
+                    class="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    Média Norte-Americana (0-4)
+                </p>
+                <p class="text-2xl font-black text-slate-900 mt-0.5">
+                    {{ student.gpa }}
+                </p>
+            </div>
+            <div class="p-2 bg-indigo-50 text-indigo-600 rounded-lg">
+                <i data-lucide="award" class="w-5 h-5"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="flex justify-between items-center mb-4">
+    <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+        <i data-lucide="book-open" class="w-5 h-5 text-slate-500"></i>
+        Disciplinas e Notas
+    </h3>
+    <button
+        onclick="openModal('add')"
+        class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold px-4 py-2 rounded-lg shadow-sm transition">
+        <i data-lucide="plus" class="w-4 h-4"></i>
+        Adicionar Disciplina
+    </button>
+</div>
+
+<div
+    class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-y-auto">
+    <table class="w-full text-left border-collapse">
+        <thead>
+            <tr
+                class="bg-slate-50 border-b border-gray-200 text-slate-600 text-xs font-semibold uppercase tracking-wider sticky top-0 z-10">
+                <th class="px-6 py-4">Nome da Disciplina</th>
+                <th class="px-6 py-4 text-center">Créditos (Horas)</th>
+                <th class="px-6 py-4 text-center">Nota Final</th>
+                <th class="px-6 py-4 text-right">Ações</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100 text-sm text-slate-700">
+            {% for course in student.courses %}
+            <tr class="hover:bg-slate-50/70 transition">
+                <td class="px-6 py-4 font-medium text-slate-900">
+                    {{ course.name }}
+                </td>
+                <td class="px-6 py-4 text-center font-mono text-slate-500">
+                    {{ course.credit_hours }}h
+                </td>
+                <td class="px-6 py-4 text-center font-bold">
+                    <span
+                        class="px-2.5 py-1 rounded-full text-xs {% if course.grade >= 7.0 %} bg-emerald-50 text-emerald-700 {% elif course.grade >= 5.0 %} bg-yellow-50 text-yellow-700 {% else %} bg-red-50 text-red-700 {% endif %}">
+                        {{ "%.1f"|format(course.grade) }}
+                    </span>
+                </td>
+                <td class="px-6 py-4 text-right space-x-2 whitespace-nowrap">
+                    <button
+                        onclick="openModal('edit', '{{ course.course_id }}', '{{ course.name }}', '{{ course.credit_hours }}', '{{ course.grade }}')"
+                        class="text-slate-400 hover:text-indigo-600 p-1 rounded transition inline-block"
+                        title="Editar">
+                        <i data-lucide="edit-3" class="w-4 h-4"></i>
+                    </button>
+                    <form
+                        action="/students/{{ student.student_id }}/courses/{{ course.course_id }}/delete"
+                        method="POST"
+                        class="inline-block"
+                        onsubmit="
+                            return confirm(
+                                'Tem certeza que deseja remover esta disciplina?'
+                            )
+                        ">
+                        <button
+                            type="submit"
+                            class="text-slate-400 hover:text-rose-600 p-1 rounded transition"
+                            title="Excluir">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="4" class="px-6 py-12 text-center text-slate-400">
+                    <i
+                        data-lucide="folder-open"
+                        class="w-12 h-12 mx-auto mb-3 text-slate-300"></i>
+                    <p class="font-medium">
+                        Este estudante não possui disciplinas vinculadas.
+                    </p>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Modal para Adicionar/Editar Disciplina -->
+<div
+    id="courseModal"
+    class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+    <div
+        class="bg-white rounded-xl shadow-xl border border-gray-200 w-full max-w-md overflow-hidden transform transition-all">
+        <div
+            class="p-6 border-b border-gray-100 flex justify-between items-center bg-slate-50">
+            <h4 id="modalTitle" class="text-lg font-bold text-slate-800">
+                Adicionar Disciplina
+            </h4>
+            <button
+                onclick="closeModal()"
+                class="text-slate-400 hover:text-slate-600 transition">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+
+        <form
+            id="courseForm"
+            method="POST"
+            action="/students/{{ student.student_id }}/courses">
+            <div class="p-6 space-y-4">
+                <div>
+                    <label
+                        for="course_name"
+                        class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">
+                        Nome da Disciplina
+                    </label>
+                    <input
+                        type="text"
+                        id="course_name"
+                        name="name"
+                        required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-sm"
+                        placeholder="Ex: Cálculo I" />
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label
+                            for="course_credits"
+                            class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">
+                            Créditos
+                        </label>
+                        <input
+                            type="number"
+                            id="course_credits"
+                            name="credit_hours"
+                            required
+                            min="1"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-sm"
+                            placeholder="Ex: 4" />
+                    </div>
+                    <div>
+                        <label
+                            for="course_grade"
+                            class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1">
+                            Nota Final
+                        </label>
+                        <input
+                            type="number"
+                            id="course_grade"
+                            name="grade"
+                            required
+                            min="0"
+                            max="10"
+                            step="0.1"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-sm"
+                            placeholder="Ex: 8.5" />
+                    </div>
+                </div>
+            </div>
+
+            <div
+                class="p-4 bg-slate-50 border-t border-gray-100 flex justify-end gap-2">
+                <button
+                    type="button"
+                    onclick="closeModal()"
+                    class="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-gray-100 rounded-lg transition">
+                    Cancelar
+                </button>
+                <button
+                    type="submit"
+                    class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-sm transition">
+                    Salvar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    const studentId = "{{ student.student_id }}"
+
+    function openModal(mode, id = "", name = "", credits = "", grade = "") {
+        const modal = document.getElementById("courseModal")
+        const form = document.getElementById("courseForm")
+        const title = document.getElementById("modalTitle")
+
+        if (mode === "add") {
+            title.innerText = "Adicionar Disciplina"
+            form.action = `/students/${studentId}/courses`
+            form.reset()
+        } else if (mode === "edit") {
+            title.innerText = "Editar Disciplina"
+            form.action = `/students/${studentId}/courses/${id}/update`
+
+            document.getElementById("course_name").value = name
+            document.getElementById("course_credits").value = credits
+            document.getElementById("course_grade").value = grade
+        }
+
+        modal.classList.remove("hidden")
+        lucide.createIcons()
+    }
+
+    function closeModal() {
+        document.getElementById("courseModal").classList.add("hidden")
+    }
+
+    // Fechar modal ao clicar fora
+    document
+        .getElementById("courseModal")
+        .addEventListener("click", function (e) {
+            if (e.target === this) {
+                this.classList.add("hidden")
+            }
+        })
+</script>
+{% endblock %}
