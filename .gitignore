@@ -1,0 +1,102 @@
+# ==============================================================================
+# PYTHON / INTERPRETADOR
+# ==============================================================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# ==============================================================================
+# AMBIENTES VIRTUAIS (Virtual Environments)
+# ==============================================================================
+.venv/
+venv/
+ENV/
+env/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# ==============================================================================
+# TESTES, COBERTURA E QUALIDADE DE CÓDIGO (Pytest, Mypy, Lint)
+# ==============================================================================
+.htmlcov/
+.tox/
+.nosetests/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.black
+.flake8
+
+# ==============================================================================
+# AMBIENTE LOCAL / BANCO DE DADOS (Importante para Clean Arch / Infraestrutura)
+# ==============================================================================
+# Ignora arquivos de dados locais (.csv, .db, .sqlite) usados para testes locais,
+# evitando que você envie o seu "banco de dados fake" de estudantes/cursos para o Git.
+*.csv
+*.db
+*.sqlite3
+*.log
+
+# Caso você queira manter os CABEÇALHOS dos CSVs no Git como template, 
+# descomente as linhas abaixo e crie uma pasta 'data_template':
+# !/src/infrastructure/db_context/data_template/*.csv
+
+# ==============================================================================
+# CONFIGURAÇÕES DE IDEs (VS Code, PyCharm, Cursor)
+# ==============================================================================
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+
+# ==============================================================================
+# VARIÁVEIS DE AMBIENTE (Segurança)
+# ==============================================================================
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+
+# NÃO ignorar o arquivo de exemplo de variáveis de ambiente
+!.env.example
+
+# ==============================================================================
+# SISTEMA OPERACIONAL
+# ==============================================================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
