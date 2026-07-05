@@ -9,27 +9,24 @@ class CourseDeletionService(CourseDeletionContract):
         self._course_repository = course_repository
         self._student_repository = student_repository
 
-    def delete_course(self, student_id, course:Course) -> str:
+    def delete_course(self, student_id: str, course: Course) -> str:
         try:
-            student_db = self._student_repository.get_student_by_id(student_id=student_id)
+            student_db = self._student_repository.get_student_by_id(student_id=str(student_id))
             if student_db is None: 
                 return 'Nao foi possivel encontrar o estudante para deletar o curso.'
 
-            student_db.remove_course(course_id=course.course_id)
-            isUpdated = self._student_repository.update_student(student_db)
-            if not isUpdated: 
-                return 'Nao foi possivel atualizar o estudante.'
-            
-            courses = self._course_repository.get_all_courses()
-            filtered_courses = list(filter(lambda c: c.course_id == course.course_id, courses))
-
-            if len(filtered_courses) == 0:
+            course_db = self._course_repository.get_course_by_id(course.course_id)
+            if course_db is None:
                 return 'Curso nao encontrado.'
 
-            
             was_removed = self._course_repository.remove_course(course.course_id)
             if not was_removed:
                 return 'Nao foi possivel remover o curso.'
+
+            student_db.remove_course(course_id=course.course_id)
+            is_updated = self._student_repository.update_student(student_db)
+            if not is_updated: 
+                return 'Nao foi possivel atualizar o estudante.'
             
             return 'Curso deletado com sucesso.'
         except Exception as e:
