@@ -12,11 +12,12 @@ class CourseAdderService(CourseAdderContract):
     def add_course(self, student_id:str, new_course: Course) -> str:
         try:
             student_db = self._student_repository.get_student_by_id(student_id=str(student_id))
-            if student_db == None: 
+            if student_db is None: 
                 return 'Nao foi possivel encontrar o estudante para adicionar o curso.'
 
-            found_course = list(filter(lambda course_id: self._course_repository.get_course_by_id(course_id).name == new_course.name, student_db.courses))
-            if len(found_course) > 0: 
+            student_courses = self._course_repository.get_courses_by_ids(student_db.courses)
+            course_exists = any(course.name == new_course.name for course in student_courses)
+            if course_exists: 
                 return 'Curso já existe para este estudante.'
             
             wasAdded = self._course_repository.add_course(new_course)
