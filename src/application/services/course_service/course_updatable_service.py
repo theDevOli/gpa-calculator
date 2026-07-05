@@ -8,12 +8,11 @@ class CourseUpdatableService(CourseUpdatableContract):
 
     def update_course(self, to_update_course: Course) -> str:
         try:
-            courses = self._repository.get_all_courses()
-            existing_course = list(filter(lambda c: c.name == to_update_course.name, courses))
+            existing_course = self._repository.get_course_by_id(to_update_course.course_id)
 
-            if not existing_course:
+            if existing_course is None:
                 return 'Curso nao encontrado.'
-
+            
             was_updated = self._repository.update_course(to_update_course)
             if not was_updated:
                 return 'Nao foi possivel atualizar o curso.'
