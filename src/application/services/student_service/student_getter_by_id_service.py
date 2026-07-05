@@ -18,6 +18,9 @@ class StudentGetterByIdService(StudentGetterByIdContract):
         """
         try:
             student = self._student_repository.get_student_by_id(student_id=student.student_id)
+            if student is None:
+                return None
+            
             courses = self._course_repository.get_all_courses()
             student_dto = StudentWithCoursesDTO.from_student_and_courses(student,courses)
             return student_dto
