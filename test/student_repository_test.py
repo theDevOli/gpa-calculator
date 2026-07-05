@@ -71,15 +71,16 @@ def test_get_student_by_id_not_found():
 def test_get_student_by_tax_id(student):
     """Garante que o estudante é retornado com sucesso ao ser buscado pelo CPF (tax_id)."""
     mock_context = MagicMock()
-    mock_context.get_all_entities.return_value = [student.to_csv()]
+    mock_context.get_all_entities.return_value = [
+        student.to_csv()
+    ]
     repository = StudentRepository(context=mock_context)
 
     # Buscando usando o CPF da fixture
-    result = repository.get_student_by_tax_id("123.456.789-00")
+    result = repository.get_student_by_tax_id(student.student_tax_id)
 
     assert result is not None
     assert result.student_id == student.student_id
-    # Dependendo de como seu Student.from_csv foi feito, valide o tax_id aqui também se desejar
     assert result.name == student.name
 
 
