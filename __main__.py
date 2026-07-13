@@ -20,6 +20,9 @@ from src import (
 )
 
 def bootstrap():
+    """
+    Inicializa a aplicação, configura as dependências, rotas e inicia o servidor web.
+    """
     # 1. Inicialização do Contexto de Persistência (Infraestrutura)
     student_context = Context(file_name="student.csv")
     course_context = Context(file_name="course.csv")
