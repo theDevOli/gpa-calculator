@@ -20,6 +20,10 @@ from src import (
 )
 
 def bootstrap():
+    """
+    Inicializa a infraestrutura, os serviços da aplicação, 
+    configura as rotas do Flask e inicia o servidor web.[cite: 1]
+    """
     # 1. Inicialização do Contexto de Persistência (Infraestrutura)
     student_context = Context(file_name="student.csv")
     course_context = Context(file_name="course.csv")
@@ -74,3 +78,4 @@ def bootstrap():
 
 if __name__ == "__main__":
     bootstrap()
+    
