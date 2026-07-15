@@ -1,16 +1,43 @@
+"""Módulo de testes unitários para a camada de serviços de cursos (Course Services).
+
+Este módulo valida os fluxos de negócios (casos de uso) para manipulação,
+criação, leitura, atualização e remoção de cursos utilizando dublês de teste (Mocks)
+para as dependências de repositório e contexto.
+"""
+
 import pytest
 from unittest.mock import MagicMock
 
-from src import Course, CourseAdderService, CourseGetterByIdService, CourseGetterService, CourseDeletionService, CourseUpdatableService
+from src import (
+    Course,
+    CourseAdderService,
+    CourseGetterByIdService,
+    CourseGetterService,
+    CourseDeletionService,
+    CourseUpdatableService,
+)
+
 
 @pytest.fixture
-def course():
-    """Fixture que fornece um objeto Course padrão para os testes do serviço."""
-    # Certifique-se de que os parâmetros batem com o construtor da sua entidade Course
+def course() -> Course:
+    """Fixture que fornece um objeto Course padrão para os testes do serviço.
+
+    Returns:
+        Course: Uma instância padrão configurada para uso nos testes de serviço.
+    """
     return Course(name="Arquitetura de Software", credit_hours=4, grade=10.0)
 
-def test_add_course_success():
-    """Garante que o curso é adicionado com sucesso se não houver outro com o mesmo nome para o estudante."""
+
+# ==============================================================================
+# TESTES: ADIÇÃO DE CURSOS (CourseAdderService)
+# ==============================================================================
+
+def test_add_course_success() -> None:
+    """Garante que o curso é adicionado com sucesso se não houver duplicidade de nome.
+
+    Valida o fluxo feliz em que o estudante existe, não possui nenhum curso com o
+    mesmo nome cadastrado e o repositório salva as alterações corretamente.
+    """
     # Arrange
     course_mock_repository = MagicMock()
     student_mock_repository = MagicMock()
@@ -42,8 +69,13 @@ def test_add_course_success():
     student_mock.add_course.assert_called_once_with("course_123")
     student_mock_repository.update_student.assert_called_once_with(student_mock)
 
-def test_add_course_fails_when_name_already_exists():
-    """Garante que o serviço barra a inserção se o nome do curso já existir."""
+
+def test_add_course_fails_when_name_already_exists() -> None:
+    """Garante que o serviço barra a inserção se o nome do curso já existir.
+
+    Valida o comportamento de restrição de unicidade por nome de curso para o 
+    mesmo estudante.
+    """
     # Arrange
     course_mock_repository = MagicMock()
     student_mock_repository = MagicMock()
@@ -69,8 +101,12 @@ def test_add_course_fails_when_name_already_exists():
     course_mock_repository.add_course.assert_not_called()
     student_mock_repository.update_student.assert_not_called()
 
-def test_add_course_exception_handling():
-    """Garante que falhas catastróficas ou erros no repositório são tratados e retornam a string de erro."""
+
+def test_add_course_exception_handling() -> None:
+    """Garante que falhas no repositório são tratadas e retornam a string de erro.
+
+    Simula uma exceção catastrófica de persistência de dados durante a tentativa de busca.
+    """
     # Arrange
     course_mock_repository = MagicMock()
     student_mock_repository = MagicMock()
@@ -88,8 +124,16 @@ def test_add_course_exception_handling():
     assert result == "Erro ao adicionar curso"
     course_mock_repository.add_course.assert_not_called()
 
-def test_get_course_by_id_success(course):
-    """Garante que o serviço retorna o objeto Course correto quando o ID existe no repositório."""
+
+# ==============================================================================
+# TESTES: CONSULTA DE CURSO POR ID (CourseGetterByIdService)
+# ==============================================================================
+
+def test_get_course_by_id_success(course: Course) -> None:
+    """Garante que o serviço retorna o objeto Course correto quando o ID existe.
+
+    Verifica se a requisição é corretamente encaminhada ao repositório e o objeto é retornado.
+    """
     # Arrange
     course_mock_repository = MagicMock()
     # O repositório finge encontrar o curso correspondente ao ID informado
@@ -106,8 +150,12 @@ def test_get_course_by_id_success(course):
     assert result.name == "Arquitetura de Software"
     course_mock_repository.get_course_by_id.assert_called_once_with(course.course_id)
 
-def test_get_course_by_id_not_found():
-    """Garante que o serviço retorna None caso o ID fornecido não seja localizado."""
+
+def test_get_course_by_id_not_found() -> None:
+    """Garante que o serviço retorna None caso o ID fornecido não seja localizado.
+
+    Valida o comportamento seguro quando o repositório devolve None para o identificador.
+    """
     # Arrange
     course_mock_repository = MagicMock()
     # O repositório simula que o ID procurado não existe no arquivo/banco
@@ -124,8 +172,12 @@ def test_get_course_by_id_not_found():
     assert result is None
     course_mock_repository.get_course_by_id.assert_called_once_with(target_id)
 
-def test_get_course_by_id_exception_handling():
-    """Garante que falhas catastróficas na infraestrutura são tratadas e o serviço retorna None."""
+
+def test_get_course_by_id_exception_handling() -> None:
+    """Garante que falhas catastróficas na infraestrutura retornam None graciosamente.
+
+    Trata exceções lançadas pelo driver de banco ou manipulação de arquivos físicos.
+    """
     # Arrange
     course_mock_repository = MagicMock()
     # Força uma exceção no repositório simulando falha física de I/O ou arquivo ausente
@@ -142,8 +194,16 @@ def test_get_course_by_id_exception_handling():
     assert result is None
     course_mock_repository.get_course_by_id.assert_called_once_with(target_id)
 
-def test_get_all_courses_success(course):
-    """Garante que o serviço retorna a lista completa de cursos vinda do repositório."""
+
+# ==============================================================================
+# TESTES: CONSULTA DE TODOS OS CURSOS (CourseGetterService)
+# ==============================================================================
+
+def test_get_all_courses_success(course: Course) -> None:
+    """Garante que o serviço retorna a lista completa de cursos cadastrados.
+
+    Verifica o retorno de todos os objetos mapeados no repositório.
+    """
     # Arrange
     course_mock_repository = MagicMock()
     c1 = course
@@ -164,8 +224,11 @@ def test_get_all_courses_success(course):
     course_mock_repository.get_all_courses.assert_called_once()
 
 
-def test_get_all_courses_returns_empty_list_when_none_exists():
-    """Garante que o serviço retorna uma lista vazia se não houver registros no repositório."""
+def test_get_all_courses_returns_empty_list_when_none_exists() -> None:
+    """Garante que o serviço retorna uma lista vazia se não houver registros.
+
+    Valida o comportamento seguro sem lançar exceções para base de dados vazia.
+    """
     # Arrange
     course_mock_repository = MagicMock()
     course_mock_repository.get_all_courses.return_value = []
@@ -179,8 +242,12 @@ def test_get_all_courses_returns_empty_list_when_none_exists():
     assert result == []
     course_mock_repository.get_all_courses.assert_called_once()
 
-def test_get_all_courses_exception_handling():
-    """Garante que falhas catastróficas na camada de infraestrutura retornam uma lista vazia de forma segura."""
+
+def test_get_all_courses_exception_handling() -> None:
+    """Garante que falhas de infraestrutura são tratadas retornando lista vazia.
+
+    Assegura que o sistema não quebra na UI caso o banco esteja indisponível.
+    """
     # Arrange
     course_mock_repository = MagicMock()
     # Força uma exceção simulando erro de leitura ou arquivo corrompido
@@ -195,8 +262,17 @@ def test_get_all_courses_exception_handling():
     assert result == []
     course_mock_repository.get_all_courses.assert_called_once()
 
-def test_delete_course_success():
-    """Garante que o curso é deletado com sucesso e desvinculado do estudante."""
+
+# ==============================================================================
+# TESTES: EXCLUSÃO DE CURSOS (CourseDeletionService)
+# ==============================================================================
+
+def test_delete_course_success() -> None:
+    """Garante que o curso é deletado e desvinculado do estudante com sucesso.
+
+    Valida o sincronismo entre a remoção do curso na entidade Course e a 
+    desassociação no agregado de Student.
+    """
     # Arrange
     course_mock_repository = MagicMock()
     student_mock_repository = MagicMock()
@@ -227,8 +303,13 @@ def test_delete_course_success():
     student_mock.remove_course.assert_called_once_with(course_id="course_123")
     student_mock_repository.update_student.assert_called_once_with(student_mock)
 
-def test_delete_course_fails_if_not_found():
-    """Garante que retorna a mensagem de erro se o curso não existir no repositório."""
+
+def test_delete_course_fails_if_not_found() -> None:
+    """Garante que retorna uma mensagem clara caso o curso não exista.
+
+    Verifica o comportamento protetor para impedir alterações se o ID do curso 
+    for inexistente ou inválido.
+    """
     # Arrange
     course_mock_repository = MagicMock()
     student_mock_repository = MagicMock()
@@ -254,8 +335,12 @@ def test_delete_course_fails_if_not_found():
     course_mock_repository.remove_course.assert_not_called()
     student_mock.remove_course.assert_not_called()
 
-def test_delete_course_exception_handling():
-    """Garante que falhas internas ou de I/O são tratadas e retornam a string de erro genérica."""
+
+def test_delete_course_exception_handling() -> None:
+    """Garante que exceções de I/O são tratadas de forma segura com retorno genérico.
+
+    Verifica o tratamento contra falhas graves na persistência ao tentar excluir registros.
+    """
     # Arrange
     course_mock_repository = MagicMock()
     student_mock_repository = MagicMock()
@@ -274,8 +359,15 @@ def test_delete_course_exception_handling():
     course_mock_repository.remove_course.assert_not_called()
 
 
-def test_update_course_success():
-    """Garante que o curso é atualizado com sucesso quando ele existe no repositório."""
+# ==============================================================================
+# TESTES: ATUALIZAÇÃO DE CURSOS (CourseUpdatableService)
+# ==============================================================================
+
+def test_update_course_success() -> None:
+    """Garante que o curso é atualizado corretamente caso ele exista.
+
+    Assegura que as alterações de campos permitidos são salvas na persistência.
+    """
     # Arrange
     course_mock_repository = MagicMock()
     
@@ -297,8 +389,12 @@ def test_update_course_success():
     course_mock_repository.update_course.assert_called_once_with(course_to_update)
 
 
-def test_update_course_fails_if_not_found():
-    """Garante que o serviço barra a atualização se o ID do curso não for localizado."""
+def test_update_course_fails_if_not_found() -> None:
+    """Garante que o serviço impede a atualização se o curso não for localizado.
+
+    Valida que o repositório não é chamado desnecessariamente se a entidade 
+    original não existe.
+    """
     # Arrange
     course_mock_repository = MagicMock()
     # Simula que o curso não foi encontrado por ID
@@ -317,8 +413,12 @@ def test_update_course_fails_if_not_found():
     course_mock_repository.update_course.assert_not_called()
 
 
-def test_update_course_exception_handling():
-    """Garante que exceções internas disparam o retorno de erro genérico padrão."""
+def test_update_course_exception_handling() -> None:
+    """Garante que falhas internas ou timeouts disparam a mensagem de erro genérica.
+
+    Verifica se erros internos de banco no update são capturados e mapeados de 
+    forma limpa.
+    """
     # Arrange
     course_mock_repository = MagicMock()
     course_mock_repository.get_course_by_id.side_effect = Exception("Database timeout")
