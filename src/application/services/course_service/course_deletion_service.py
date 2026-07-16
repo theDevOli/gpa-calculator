@@ -5,11 +5,50 @@ from src.application.services_contract.course_contract.course_deletion_contract 
 
 
 class CourseDeletionService(CourseDeletionContract):
-    def __init__(self, course_repository:CourseRepositoryContract, student_repository:StudentRepositoryContract):
+    """Serviço responsável por remover um curso e desvinculá-lo de um estudante.
+
+    Esta classe implementa o contrato `CourseDeletionContract` e coordena a lógica de negócio
+    necessária para deletar um curso do repositório de cursos e remover sua referência do 
+    cadastro do estudante associado.
+
+    Attributes:
+        _course_repository (CourseRepositoryContract): Repositório para gerenciamento e persistência de cursos.
+        _student_repository (StudentRepositoryContract): Repositório para gerenciamento e persistência de estudantes.
+    """
+
+    def __init__(self, course_repository: CourseRepositoryContract, student_repository: StudentRepositoryContract):
+        """Inicializa o serviço de exclusão de cursos com os repositórios necessários.
+
+        Args:
+            course_repository (CourseRepositoryContract): Instância do repositório de cursos.
+            student_repository (StudentRepositoryContract): Instância do repositório de estudantes.
+        """
         self._course_repository = course_repository
         self._student_repository = student_repository
 
     def delete_course(self, student_id: str, course: Course) -> str:
+        """Deleta um curso e remove sua associação do cadastro do estudante especificado.
+
+        O método realiza as seguintes validações e etapas de negócio:
+        1. Verifica se o estudante existe no banco de dados.
+        2. Verifica se o curso informado existe no repositório.
+        3. Remove o curso do repositório de cursos.
+        4. Desvincula o ID do curso do cadastro do estudante e atualiza os dados do estudante.
+
+        Args:
+            student_id (str): Identificador único do estudante que possui o curso.
+            course (Course): Instância da entidade Course que se deseja remover.
+
+        Returns:
+            str: Uma mensagem descritiva indicando o sucesso ou o motivo da falha na operação.
+                 Mensagens possíveis:
+                 - "Curso deletado com sucesso."
+                 - "Nao foi possivel encontrar o estudante para deletar o curso."
+                 - "Curso nao encontrado."
+                 - "Nao foi possivel remover o curso."
+                 - "Nao foi possivel atualizar o estudante."
+                 - "Erro ao deletar curso" (em caso de exceções não tratadas durante o processo).
+        """
         try:
             student_db = self._student_repository.get_student_by_id(student_id=str(student_id))
             if student_db is None: 

@@ -8,6 +8,20 @@ from src.application.services_contract.course_contract.course_updatable_contract
 from src.application.services_contract.course_contract.course_deletion_contract import CourseDeletionContract
 
 class CourseController:
+    """Controlador responsável por expor as rotas HTTP relacionadas a Cursos.
+
+    Esta classe atua como um adaptador de entrega (Delivery Mechanism) na arquitetura, 
+    mapeando endpoints HTTP do Flask para os respectivos casos de uso (contracts) 
+    do domínio de aplicação de cursos.
+
+    Attributes:
+        app (Flask): Instância do aplicativo Flask onde as rotas serão registradas.
+        _course_getter (CourseGetterContract): Caso de uso para recuperação de cursos.
+        _course_adder (CourseAdderContract): Caso de uso para criação e associação de cursos.
+        _course_updatable (CourseUpdatableContract): Caso de uso para atualização de cursos.
+        _course_deletion (CourseDeletionContract): Caso de uso para remoção de cursos.
+    """
+
     def __init__(
             self,
             app: Flask,
@@ -16,6 +30,15 @@ class CourseController:
             course_updatable: CourseUpdatableContract,
             course_deletion: CourseDeletionContract
         ):
+        """Inicializa o controlador de cursos e registra suas rotas no Flask.
+
+        Args:
+            app (Flask): Instância do Flask.
+            courser_getter (CourseGetterContract): Serviço que busca as listagens de cursos.
+            course_adder (CourseAdderContract): Serviço que gerencia adição de novos cursos.
+            course_updatable (CourseUpdatableContract): Serviço que atualiza informações do curso.
+            course_deletion (CourseDeletionContract): Serviço que lida com a deleção de cursos.
+        """
         self.app = app
         self._course_getter = courser_getter
         self._course_adder = course_adder
@@ -24,7 +47,26 @@ class CourseController:
         
         self._register_routes()
 
-    def _register_routes(self):
+    def _register_routes(self) -> None:
+        """Registra internamente os endpoints HTTP do Flask e seus manipuladores de rota.
+
+        Este método define quatro rotas no aplicativo Flask:
+        
+        1.  **GET `/courses`** (`view_courses`): 
+            Renderiza a página principal com a listagem geral de cursos cadastrados.
+            
+        2.  **POST `/students/<student_id>/courses`** (`add_course`): 
+            Recebe dados do formulário de criação de curso e os associa ao estudante fornecido.
+            Redireciona para a visualização dos cursos do estudante com uma mensagem de resultado.
+            
+        3.  **POST `/students/<student_id>/courses/<course_id>/update`** (`update_course`): 
+            Atualiza as propriedades do curso no repositório através de dados vindos do formulário.
+            Redireciona para a visualização de cursos do estudante informando o sucesso ou falha.
+            
+        4.  **POST `/students/<student_id>/courses/<course_id>/delete`** (`delete_course`): 
+            Remove a entidade de curso com base no ID fornecido e limpa sua referência no estudante.
+            Redireciona o usuário para a página de cursos do estudante.
+        """
         
         @self.app.route("/courses", methods=["GET"])
         def view_courses():
